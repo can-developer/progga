@@ -1,5 +1,5 @@
     ;(function()
-    local LibraryURL = "https://raw.githubusercontent.com/can-developer/progga"
+    local LibraryURL = "https://raw.githubusercontent.com/can-developer/progga/main/ayim_menu.lua"
 
     if not Susano or type(Susano) ~= "table" or type(Susano.HttpGet) ~= "function" then
         print("Error: Susano.HttpGet is not available")
