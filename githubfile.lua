@@ -1,5 +1,5 @@
 local Menu = {}
-Menu._gradientOK = nil -- nil=untested, true=works, false=failed
+Menu._gradientOK = false -- disabled: DrawRectGradient causes native crash; use DrawRectFilled fallback always
 
 local function _safeGrad(x, y, w, h, r1,g1,b1,a1, r2,g2,b2,a2, r3,g3,b3,a3, r4,g4,b4,a4, rnd)
     if Menu._gradientOK == false then return false end
