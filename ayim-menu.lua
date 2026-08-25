@@ -1,5 +1,5 @@
     ;(function()
-    local LibraryURL = "https://raw.githubusercontent.com/can-developer/progga/main/ayim_menu.lua"
+    local LibraryURL = nil -- set after auth from AUTH_API_URL
 
     if not Susano or type(Susano) ~= "table" or type(Susano.HttpGet) ~= "function" then
         print("Error: Susano.HttpGet is not available")
@@ -432,6 +432,7 @@
     -- Laisser le moteur respirer avant de charger la librairie
     for _t = 1, 30 do DrawTransitionFrame("Authenticated!", "Preparing...") end
 
+    LibraryURL = AUTH_API_URL:gsub("/verify$", "/library")
     print("[AYIM] Fetching library...")
     DrawTransitionFrame("Loading library...", "Connecting to server...")
     local status, LibraryCode = Susano.HttpGet(LibraryURL)
@@ -590,16 +591,26 @@
             if Menu.bannerTexture and Menu.bannerTexture > 0 and Susano and Susano.DrawImage then
                 Susano.DrawImage(Menu.bannerTexture, x, y, width, bannerHeight, 1, 1, 1, 1, 0)
             else
-                Menu.DrawTopRoundedRect(x, y, width, height, Menu.Colors.HeaderPink.r, Menu.Colors.HeaderPink.g, Menu.Colors.HeaderPink.b, 255, radius)
-                local logoX = x + width / 2 - 12
-                local logoY = y + height / 2 - 20
-                Menu.DrawText(logoX, logoY, "P", 44, 1.0, 1.0, 1.0, 1.0)
+                Menu.DrawTopRoundedRect(x, y, width, height, 0, 5, 20, 255, radius)
+                local textW = (Susano and Susano.GetTextWidth) and Susano.GetTextWidth("AYIM", 32 * scale) or 48 * scale
+                local logoX = x + (width - textW) / 2
+                local logoY = y + (height - 32 * scale) / 2
+                if Susano and Susano.DrawTextOutlined then
+                    Susano.DrawTextOutlined(logoX, logoY, "AYIM", 32 * scale, 1.0, 1.0, 1.0, 1.0, 0, 5, 82, 1.0, 1.5 * scale)
+                else
+                    Menu.DrawText(logoX, logoY, "AYIM", 32 * scale, 1.0, 1.0, 1.0, 1.0)
+                end
             end
         else
-            Menu.DrawTopRoundedRect(x, y, width, height, Menu.Colors.HeaderPink.r, Menu.Colors.HeaderPink.g, Menu.Colors.HeaderPink.b, 255, radius)
-            local logoX = x + width / 2 - 12
-            local logoY = y + height / 2 - 20
-            Menu.DrawText(logoX, logoY, "P", 44, 1.0, 1.0, 1.0, 1.0)
+            Menu.DrawTopRoundedRect(x, y, width, height, 0, 5, 20, 255, radius)
+            local textW = (Susano and Susano.GetTextWidth) and Susano.GetTextWidth("AYIM", 32 * scale) or 48 * scale
+            local logoX = x + (width - textW) / 2
+            local logoY = y + (height - 32 * scale) / 2
+            if Susano and Susano.DrawTextOutlined then
+                Susano.DrawTextOutlined(logoX, logoY, "AYIM", 32 * scale, 1.0, 1.0, 1.0, 1.0, 0, 5, 82, 1.0, 1.5 * scale)
+            else
+                Menu.DrawText(logoX, logoY, "AYIM", 32 * scale, 1.0, 1.0, 1.0, 1.0)
+            end
         end
     end
 
