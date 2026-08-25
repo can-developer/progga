@@ -1,4 +1,15 @@
 local Menu = {}
+Menu._gradientOK = nil -- nil=untested, true=works, false=failed
+
+local function _safeGrad(x, y, w, h, r1,g1,b1,a1, r2,g2,b2,a2, r3,g3,b3,a3, r4,g4,b4,a4, rnd)
+    if Menu._gradientOK == false then return false end
+    if not (Susano and Susano.DrawRectGradient) then return false end
+    local ok = pcall(Susano.DrawRectGradient, x,y,w,h, r1,g1,b1,a1, r2,g2,b2,a2, r3,g3,b3,a3, r4,g4,b4,a4, rnd)
+    if not ok then Menu._gradientOK = false end
+    if ok then Menu._gradientOK = true end
+    return ok
+end
+
 Menu.Visible = false
 Menu.CurrentCategory = 2
 Menu.CurrentPage = 1
@@ -464,17 +475,16 @@ function Menu.DrawTabs(category, x, startY, width, tabHeight)
             local darkG = math.max(0, baseG - darkenAmount)
             local darkB = math.max(0, baseB - darkenAmount)
 
-            if Susano and Susano.DrawRectGradient then
-                Susano.DrawRectGradient(selectorX, startY, selectorWidth, tabHeight,
+            if not _safeGrad(selectorX, startY, selectorWidth, tabHeight,
                     brightR, brightG, brightB, 0.9,
                     brightR, brightG, brightB, 0.9,
                     darkR, darkG, darkB, 0.9,
-                    darkR, darkG, darkB, 0.9,
-                    0)
-            elseif Susano and Susano.DrawRectFilled then
-                Susano.DrawRectFilled(selectorX, startY, selectorWidth, tabHeight, baseR, baseG, baseB, 0.9, 0.0)
-            else
-                Menu.DrawRect(selectorX, startY, selectorWidth, tabHeight, baseR * 255, baseG * 255, baseB * 255, 220)
+                    darkR, darkG, darkB, 0.9, 0) then
+                if Susano and Susano.DrawRectFilled then
+                    Susano.DrawRectFilled(selectorX, startY, selectorWidth, tabHeight, baseR, baseG, baseB, 0.9, 0.0)
+                else
+                    Menu.DrawRect(selectorX, startY, selectorWidth, tabHeight, baseR * 255, baseG * 255, baseB * 255, 220)
+                end
             end
 
             Menu.DrawRect(selectorX, startY, (3 * scale), tabHeight, Menu.Colors.SelectedBg.r, Menu.Colors.SelectedBg.g, Menu.Colors.SelectedBg.b, 255)
@@ -611,17 +621,16 @@ function Menu.DrawItem(x, itemY, width, itemHeight, item, isSelected)
             local bR = math.min(1.0, baseR * 1.15)
             local bG = math.min(1.0, baseG * 1.15)
             local bB = math.min(1.0, baseB * 1.15)
-            if Susano and Susano.DrawRectGradient then
-                Susano.DrawRectGradient(x, drawY, width - 1, itemHeight,
+            if not _safeGrad(x, drawY, width - 1, itemHeight,
                     bR, bG, bB, 0.92,
                     0.0, 0.0, 0.0, 0.0,
                     0.0, 0.0, 0.0, 0.0,
-                    bR, bG, bB, 0.92,
-                    0)
-            elseif Susano and Susano.DrawRectFilled then
-                Susano.DrawRectFilled(x, drawY, width - 1, itemHeight, baseR, baseG, baseB, 0.55, 0.0)
-            else
-                Menu.DrawRect(x, drawY, width - 1, itemHeight, baseR * 255, baseG * 255, baseB * 255, 140)
+                    bR, bG, bB, 0.92, 0) then
+                if Susano and Susano.DrawRectFilled then
+                    Susano.DrawRectFilled(x, drawY, width - 1, itemHeight, baseR, baseG, baseB, 0.55, 0.0)
+                else
+                    Menu.DrawRect(x, drawY, width - 1, itemHeight, baseR * 255, baseG * 255, baseB * 255, 140)
+                end
             end
         else
             local brightR = math.min(1.0, baseR * 1.12)
@@ -630,17 +639,16 @@ function Menu.DrawItem(x, itemY, width, itemHeight, item, isSelected)
             local darkR = math.max(0, baseR - darkenAmount)
             local darkG = math.max(0, baseG - darkenAmount)
             local darkB = math.max(0, baseB - darkenAmount)
-            if Susano and Susano.DrawRectGradient then
-                Susano.DrawRectGradient(selectorX, drawY, width - 1, itemHeight,
+            if not _safeGrad(selectorX, drawY, width - 1, itemHeight,
                     brightR, brightG, brightB, 0.95,
                     brightR, brightG, brightB, 0.95,
                     darkR, darkG, darkB, 0.95,
-                    darkR, darkG, darkB, 0.95,
-                    0)
-            elseif Susano and Susano.DrawRectFilled then
-                Susano.DrawRectFilled(selectorX, drawY, width - 1, itemHeight, baseR, baseG, baseB, 0.95, 0.0)
-            else
-                Menu.DrawRect(selectorX, drawY, width - 1, itemHeight, baseR * 255, baseG * 255, baseB * 255, 242)
+                    darkR, darkG, darkB, 0.95, 0) then
+                if Susano and Susano.DrawRectFilled then
+                    Susano.DrawRectFilled(selectorX, drawY, width - 1, itemHeight, baseR, baseG, baseB, 0.95, 0.0)
+                else
+                    Menu.DrawRect(selectorX, drawY, width - 1, itemHeight, baseR * 255, baseG * 255, baseB * 255, 242)
+                end
             end
         end
 
@@ -1237,17 +1245,16 @@ function Menu.DrawCategories()
                     local bR = math.min(1.0, baseR * 1.15)
                     local bG = math.min(1.0, baseG * 1.15)
                     local bB = math.min(1.0, baseB * 1.15)
-                    if Susano and Susano.DrawRectGradient then
-                        Susano.DrawRectGradient(x, drawY, width - 1, itemHeight,
+                    if not _safeGrad(x, drawY, width - 1, itemHeight,
                             bR, bG, bB, 0.92,
                             0.0, 0.0, 0.0, 0.0,
                             0.0, 0.0, 0.0, 0.0,
-                            bR, bG, bB, 0.92,
-                            0)
-                    elseif Susano and Susano.DrawRectFilled then
-                        Susano.DrawRectFilled(x, drawY, width - 1, itemHeight, baseR, baseG, baseB, 0.55, 0.0)
-                    else
-                        Menu.DrawRect(x, drawY, width - 1, itemHeight, baseR * 255, baseG * 255, baseB * 255, 140)
+                            bR, bG, bB, 0.92, 0) then
+                        if Susano and Susano.DrawRectFilled then
+                            Susano.DrawRectFilled(x, drawY, width - 1, itemHeight, baseR, baseG, baseB, 0.55, 0.0)
+                        else
+                            Menu.DrawRect(x, drawY, width - 1, itemHeight, baseR * 255, baseG * 255, baseB * 255, 140)
+                        end
                     end
                 else
                     local brightR = math.min(1.0, baseR * 1.12)
@@ -1256,17 +1263,16 @@ function Menu.DrawCategories()
                     local darkR = math.max(0, baseR - darkenAmount)
                     local darkG = math.max(0, baseG - darkenAmount)
                     local darkB = math.max(0, baseB - darkenAmount)
-                    if Susano and Susano.DrawRectGradient then
-                        Susano.DrawRectGradient(selectorX, drawY, width - 1, itemHeight,
+                    if not _safeGrad(selectorX, drawY, width - 1, itemHeight,
                             brightR, brightG, brightB, 0.95,
                             brightR, brightG, brightB, 0.95,
                             darkR, darkG, darkB, 0.95,
-                            darkR, darkG, darkB, 0.95,
-                            0)
-                    elseif Susano and Susano.DrawRectFilled then
-                        Susano.DrawRectFilled(selectorX, drawY, width - 1, itemHeight, baseR, baseG, baseB, 0.95, 0.0)
-                    else
-                        Menu.DrawRect(selectorX, drawY, width - 1, itemHeight, baseR * 255, baseG * 255, baseB * 255, 242)
+                            darkR, darkG, darkB, 0.95, 0) then
+                        if Susano and Susano.DrawRectFilled then
+                            Susano.DrawRectFilled(selectorX, drawY, width - 1, itemHeight, baseR, baseG, baseB, 0.95, 0.0)
+                        else
+                            Menu.DrawRect(selectorX, drawY, width - 1, itemHeight, baseR * 255, baseG * 255, baseB * 255, 242)
+                        end
                     end
                 end
 
