@@ -1,6 +1,14 @@
 local Menu = {}
 Menu._gradientOK = false -- disabled: DrawRectGradient causes native crash; use DrawRectFilled fallback always
 
+-- Safe GetTextWidth wrapper: Susano.GetTextWidth can crash with certain sizes; use estimation instead
+local function _safeGTW(text, size)
+    if not text or text == "" then return 0 end
+    text = tostring(text)
+    -- Estimate: ~0.55 * size per character is a reasonable monospace approximation
+    return string.len(text) * math.max(6, size) * 0.55
+end
+
 local function _safeGrad(x, y, w, h, r1,g1,b1,a1, r2,g2,b2,a2, r3,g3,b3,a3, r4,g4,b4,a4, rnd)
     if Menu._gradientOK == false then return false end
     if not (Susano and Susano.DrawRectGradient) then return false end
@@ -270,6 +278,7 @@ function Menu.DrawText(x, y, text, size_px, r, g, b, a)
     if text == nil then return end
     text = tostring(text)
     if text == "" then return end
+    if size_px < 6 then return end
 
     Susano.DrawText(x, y, text, size_px, r, g, b, a)
 end
@@ -299,7 +308,7 @@ function Menu.DrawHeader()
                 Menu.DrawTopRoundedRect(x, y, width, height, Menu.Colors.HeaderPink.r, Menu.Colors.HeaderPink.g, Menu.Colors.HeaderPink.b, 255, radius)
             end
             local scaledFontSize = 26 * scale
-            local textW = (Susano and Susano.GetTextWidth) and Susano.GetTextWidth("AYIM", scaledFontSize) or (60 * scale)
+            local textW = (Susano and Susano.GetTextWidth) and _safeGTW("AYIM", scaledFontSize) or (60 * scale)
             local logoX = x + width / 2 - textW / 2
             local logoY = y + height / 2 - (scaledFontSize / 2)
             if false and Susano and Susano.DrawTextOutlined then
@@ -320,7 +329,7 @@ function Menu.DrawHeader()
             Menu.DrawTopRoundedRect(x, y, width, height, Menu.Colors.HeaderPink.r, Menu.Colors.HeaderPink.g, Menu.Colors.HeaderPink.b, 255, radius)
         end
         local scaledFontSize = 26 * scale
-        local textW = (Susano and Susano.GetTextWidth) and Susano.GetTextWidth("AYIM", scaledFontSize) or (60 * scale)
+        local textW = (Susano and Susano.GetTextWidth) and _safeGTW("AYIM", scaledFontSize) or (60 * scale)
         local logoX = x + width / 2 - textW / 2
         local logoY = y + height / 2 - (scaledFontSize / 2)
         if false and Susano and Susano.DrawTextOutlined then
@@ -509,7 +518,7 @@ function Menu.DrawTabs(category, x, startY, width, tabHeight)
         local textWidth = 0
         if tabLabel ~= "" then
             if Susano and Susano.GetTextWidth then
-                textWidth = Susano.GetTextWidth(tabLabel, scaledTextSize)
+                textWidth = _safeGTW(tabLabel, scaledTextSize)
             else
                 textWidth = string.len(tabLabel) * 9 * scale
             end
@@ -560,7 +569,7 @@ function Menu.DrawItem(x, itemY, width, itemHeight, item, isSelected)
 
             local textWidth = 0
             if Susano and Susano.GetTextWidth then
-                textWidth = Susano.GetTextWidth(item.separatorText, textSize)
+                textWidth = _safeGTW(item.separatorText, textSize)
             else
                 textWidth = string.len(item.separatorText) * 8 * scale
             end
@@ -868,7 +877,7 @@ function Menu.DrawItem(x, itemY, width, itemHeight, item, isSelected)
             local fullText = "< " .. selectedOption .. " >"
             local selectorWidth = 0
             if Susano and Susano.GetTextWidth then
-                selectorWidth = Susano.GetTextWidth(fullText, selectorSize)
+                selectorWidth = _safeGTW(fullText, selectorSize)
             else
                 selectorWidth = string.len(fullText) * 9 * scale
             end
@@ -880,7 +889,7 @@ function Menu.DrawItem(x, itemY, width, itemHeight, item, isSelected)
 
             local leftArrowWidth = 0
             if Susano and Susano.GetTextWidth then
-                leftArrowWidth = Susano.GetTextWidth("< ", selectorSize)
+                leftArrowWidth = _safeGTW("< ", selectorSize)
             else
                 leftArrowWidth = 18 * scale
             end
@@ -888,7 +897,7 @@ function Menu.DrawItem(x, itemY, width, itemHeight, item, isSelected)
 
             local optionWidth = 0
             if Susano and Susano.GetTextWidth then
-                optionWidth = Susano.GetTextWidth(selectedOption, selectorSize)
+                optionWidth = _safeGTW(selectedOption, selectorSize)
             else
                 optionWidth = string.len(selectedOption) * 9 * scale
             end
@@ -972,7 +981,7 @@ function Menu.DrawItem(x, itemY, width, itemHeight, item, isSelected)
             local selectorText = "- " .. tostring(displayValue) .. " -"
             local selectorWidth = 0
             if Susano and Susano.GetTextWidth then
-                selectorWidth = Susano.GetTextWidth(selectorText, selectorSize)
+                selectorWidth = _safeGTW(selectorText, selectorSize)
             else
                 selectorWidth = string.len(selectorText) * 9 * scale
             end
@@ -982,7 +991,7 @@ function Menu.DrawItem(x, itemY, width, itemHeight, item, isSelected)
             local fullText = "< " .. selectedOption .. " >"
             local selectorWidth = 0
             if Susano and Susano.GetTextWidth then
-                selectorWidth = Susano.GetTextWidth(fullText, selectorSize)
+                selectorWidth = _safeGTW(fullText, selectorSize)
             else
                 selectorWidth = string.len(fullText) * 9 * scale
             end
@@ -994,7 +1003,7 @@ function Menu.DrawItem(x, itemY, width, itemHeight, item, isSelected)
 
             local leftArrowWidth = 0
             if Susano and Susano.GetTextWidth then
-                leftArrowWidth = Susano.GetTextWidth("< ", selectorSize)
+                leftArrowWidth = _safeGTW("< ", selectorSize)
             else
                 leftArrowWidth = 18 * scale
             end
@@ -1003,7 +1012,7 @@ function Menu.DrawItem(x, itemY, width, itemHeight, item, isSelected)
 
             local optionWidth = 0
             if Susano and Susano.GetTextWidth then
-                optionWidth = Susano.GetTextWidth(selectedOption, selectorSize)
+                optionWidth = _safeGTW(selectedOption, selectorSize)
             else
                 optionWidth = string.len(selectedOption) * 9 * scale
             end
@@ -1095,35 +1104,10 @@ function Menu.DrawCategories()
     local baseG = (Menu.Colors.HeaderPink and Menu.Colors.HeaderPink.g) and (Menu.Colors.HeaderPink.g / 255.0) or 0.0
     local baseB = (Menu.Colors.HeaderPink and Menu.Colors.HeaderPink.b) and (Menu.Colors.HeaderPink.b / 255.0) or 0.83
     
-    local gradientSteps = 40
-    local stepHeight = mainMenuHeight / gradientSteps
-    local gradStartY = itemY
-    
-    for step = 0, gradientSteps - 1 do
-        local stepY = gradStartY + (step * stepHeight)
-        local actualStepHeight = stepHeight
-        local maxY = gradStartY + mainMenuHeight
-        if stepY + actualStepHeight > maxY then
-             actualStepHeight = maxY - stepY
-        end
-        
-        local stepGradientFactor = step / (gradientSteps - 1)
-        local easedFactor = stepGradientFactor * stepGradientFactor * (3.0 - 2.0 * stepGradientFactor)
-        local alpha = 0.5 + (easedFactor * 0.5)
-        
-        local brightness = 1.0
-        if step < gradientSteps * 0.3 then
-            brightness = 1.0 + (0.2 * (1.0 - step / (gradientSteps * 0.3)))
-        end
-        local stepR = math.min(1.0, baseR * brightness)
-        local stepG = math.min(1.0, baseG * brightness)
-        local stepB = math.min(1.0, baseB * brightness)
-        
-        if Susano and Susano.DrawRectFilled then
-            Susano.DrawRectFilled(x, stepY, width, actualStepHeight, stepR, stepG, stepB, alpha, 0)
-        else
-             Menu.DrawRect(x, stepY, width, actualStepHeight, math.floor(stepR*255), math.floor(stepG*255), math.floor(stepB*255), math.floor(alpha*255))
-        end
+    if Susano and Susano.DrawRectFilled then
+        Susano.DrawRectFilled(x, itemY, width, mainMenuHeight, baseR, baseG, baseB, 0.75, 0)
+    else
+        Menu.DrawRect(x, itemY, width, mainMenuHeight, math.floor(baseR*255), math.floor(baseG*255), math.floor(baseB*255), 191)
     end
     
     if Menu.TopLevelTabs then
@@ -1154,35 +1138,10 @@ function Menu.DrawCategories()
                 local baseG = (Menu.Colors.SelectedBg and Menu.Colors.SelectedBg.g) and (Menu.Colors.SelectedBg.g / 255.0) or 0.0
                 local baseB = (Menu.Colors.SelectedBg and Menu.Colors.SelectedBg.b) and (Menu.Colors.SelectedBg.b / 255.0) or 1.0
                 
-                local gradientSteps = 40
-                local stepHeight = mainMenuHeight / gradientSteps
-                local gradStartY = itemY
-                
-                for step = 0, gradientSteps - 1 do
-                    local stepY = gradStartY + (step * stepHeight)
-                    local actualStepHeight = stepHeight
-                    local maxY = gradStartY + mainMenuHeight
-                    if stepY + actualStepHeight > maxY then
-                         actualStepHeight = maxY - stepY
-                    end
-                    
-                    local stepGradientFactor = step / (gradientSteps - 1)
-                    local easedFactor = stepGradientFactor * stepGradientFactor * (3.0 - 2.0 * stepGradientFactor)
-                    local alpha = easedFactor * 0.65
-                    
-                    local brightness = 1.0
-                    if step < gradientSteps * 0.2 then
-                        brightness = 1.0 + (0.1 * (1.0 - step / (gradientSteps * 0.2)))
-                    end
-                    local stepR = math.min(1.0, baseR * brightness)
-                    local stepG = math.min(1.0, baseG * brightness)
-                    local stepB = math.min(1.0, baseB * brightness)
-                    
-                    if Susano and Susano.DrawRectFilled then
-                        Susano.DrawRectFilled(drawX, stepY, drawWidth, actualStepHeight, stepR, stepG, stepB, alpha, 0)
-                    else
-                         Menu.DrawRect(drawX, stepY, drawWidth, actualStepHeight, math.floor(stepR*255), math.floor(stepG*255), math.floor(stepB*255), math.floor(alpha*255))
-                    end
+                if Susano and Susano.DrawRectFilled then
+                    Susano.DrawRectFilled(drawX, itemY, drawWidth, mainMenuHeight, baseR, baseG, baseB, 0.45, 0)
+                else
+                    Menu.DrawRect(drawX, itemY, drawWidth, mainMenuHeight, math.floor(baseR*255), math.floor(baseG*255), math.floor(baseB*255), 115)
                 end
                 
                 if Susano and Susano.DrawRectFilled then
@@ -1198,7 +1157,7 @@ function Menu.DrawCategories()
             local textSize = 16
             local textWidth = 0
             if Susano and Susano.GetTextWidth then
-                textWidth = Susano.GetTextWidth(text, textSize)
+                textWidth = _safeGTW(text, textSize)
             else
                 textWidth = string.len(text) * 9
             end
@@ -1454,7 +1413,7 @@ function Menu.DrawFooter()
 
     local textWidth = 0
     if Susano and Susano.GetTextWidth then
-        textWidth = Susano.GetTextWidth(footerText, scaledFooterSize)
+        textWidth = _safeGTW(footerText, scaledFooterSize)
     else
         textWidth = string.len(footerText) * 8 * scale
     end
@@ -1489,7 +1448,7 @@ function Menu.DrawFooter()
 
     local posWidth = 0
     if Susano and Susano.GetTextWidth then
-        posWidth = Susano.GetTextWidth(posText, scaledFooterSize)
+        posWidth = _safeGTW(posText, scaledFooterSize)
     else
         posWidth = string.len(posText) * 8 * scale
     end
@@ -1550,7 +1509,7 @@ function Menu.DrawKeySelector(alpha)
     local barY = startY + headerHeight
     local barLabel = "Choose a key"
     local barLabelSize = 12
-    local barLabelW = Susano and Susano.GetTextWidth and Susano.GetTextWidth(barLabel, barLabelSize) or (string.len(barLabel) * 7)
+    local barLabelW = Susano and Susano.GetTextWidth and _safeGTW(barLabel, barLabelSize) or (string.len(barLabel) * 7)
     local barLabelX = startX + (width / 2) - (barLabelW / 2)
     local barLabelY = barY - barLabelSize - 4
     Menu.DrawText(barLabelX, barLabelY, barLabel, barLabelSize, 0.9, 0.9, 0.9, 1.0 * alpha)
@@ -1581,7 +1540,7 @@ function Menu.DrawKeySelector(alpha)
     end
 
     local keySize = 18
-    local keyW = Susano and Susano.GetTextWidth and Susano.GetTextWidth(keyName, keySize) or (string.len(keyName) * 9)
+    local keyW = Susano and Susano.GetTextWidth and _safeGTW(keyName, keySize) or (string.len(keyName) * 9)
     Menu.DrawText(math.floor(boxX + (boxSize / 2) - (keyW / 2)), math.floor(boxY + (boxSize / 2) - (keySize / 2)), keyName, keySize, 1.0, 1.0, 1.0, 1.0 * alpha)
 end
 
@@ -1633,7 +1592,7 @@ function Menu.DrawKeybindsInterface(alpha)
         local text = bind.name .. " (" .. bind.keyName .. ") [" .. status .. "]"
         local textWidth = 0
         if Susano and Susano.GetTextWidth then
-            textWidth = Susano.GetTextWidth(text, textSize)
+            textWidth = _safeGTW(text, textSize)
         else
             textWidth = string.len(text) * 8
         end
@@ -1944,14 +1903,6 @@ function Menu.Render()
         Menu.KeybindsInterfaceAlpha = math.min(1.0, Menu.KeybindsInterfaceAlpha + animSpeed)
     else
         Menu.KeybindsInterfaceAlpha = math.max(0.0, Menu.KeybindsInterfaceAlpha - animSpeed)
-    end
-
-    -- First frame: wipe the loader's transition screen from the DUI surface
-    if not Menu._firstFrameCleared then
-        Menu._firstFrameCleared = true
-        if Susano.ResetFrame then
-            pcall(function() Susano.ResetFrame() end)
-        end
     end
 
     Menu._dbgSection = "BeginFrame"
@@ -2808,7 +2759,7 @@ function Menu.DrawInputWindow()
     local titleSize = 20
     local titleWidth = 0
     if Susano and Susano.GetTextWidth then
-        titleWidth = Susano.GetTextWidth(titleText, titleSize)
+        titleWidth = _safeGTW(titleText, titleSize)
     else
         titleWidth = string.len(titleText) * 10
     end
